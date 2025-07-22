@@ -5,13 +5,16 @@ import App from "./App.jsx";
 import { Provider } from "@/components/ui/provider";
 import { BrowserRouter } from "react-router-dom";
 import ChatProvider from "./context/ChatProvider.jsx";
+import FetchProvider from "./context/FetchProvider.jsx";
 
 createRoot(document.getElementById("root")).render(
   <Provider>
     <BrowserRouter>
-      <ChatProvider>
-        <App />
-      </ChatProvider>
+      <FetchProvider>
+        <ChatProvider>
+          <App />
+        </ChatProvider>
+      </FetchProvider>
     </BrowserRouter>
   </Provider>
 );

@@ -3,8 +3,10 @@ import { ChatState } from "../context/ChatProvider.jsx";
 import { getSender, getSenderFull } from "../config/chatLogic.js";
 import ProfileModal from "./ProfileModal";
 import UpdateGroupChatModal from "./UpdateGroupChatModal.jsx";
+import { FetchState } from "../context/FetchProvider.jsx";
 
-const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+const SingleChat = () => {
+  const { fetchAgain, setFetchAgain } = FetchState();
   const { user, selectedChat, setSelectedChat } = ChatState();
   return (
     <>
@@ -54,10 +56,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                   backgroundColor="#ede8e8"
                   className="click-drawer"
                   onClick={() => {
-                    UpdateGroupChatModal.open("update-chat", {
-                      fetchAgain,
-                      setFetchAgain,
-                    });
+                    UpdateGroupChatModal.open("update-chat", {});
                   }}
                   mt="2"
                 >
@@ -128,7 +127,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           height="100%"
           width="100%"
         >
-          <Text fontSize="5xl" fontFamily="Work sans" color="black">
+          <Text fontSize="5xl" fontFamily="Work sans" color="black" textAlign="center">
             Select a chat to start messaging
           </Text>
         </Box>

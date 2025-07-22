@@ -6,8 +6,10 @@ import { toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Box, Button, Stack, Text } from "@chakra-ui/react";
+import { FetchState } from "../context/FetchProvider.jsx";
 
-const MyChats = ({fetchAgain}) => {
+const MyChats = () => {
+  const { fetchAgain } = FetchState();
   const [loggedUser, setLoggedUser] = useState();
   const { selectedChat, setSelectedChat, user, chats, setChats } = ChatState();
   const fetchChats = async () => {

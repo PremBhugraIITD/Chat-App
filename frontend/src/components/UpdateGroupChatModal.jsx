@@ -14,16 +14,73 @@ import {
 import { toaster } from "@/components/ui/toaster";
 import UserBadgeItem from "./UserBadgeItem";
 import axios from "axios";
+import { FetchState } from "../context/FetchProvider";
+import UserListItem from "./UserListItem";
 
 const UpdateGroupChatModal = createOverlay((props) => {
-  const { fetchAgain, setFetchAgain, ...rest } = props;
+  const { fetchAgain, setFetchAgain } = FetchState();
   const { selectedChat, setSelectedChat, user } = ChatState();
-  const [chatName, setChatName] = useState();
+  const [chatName, setChatName] = useState("");
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
   const [renameLoading, setRenameLoading] = useState(false);
-  const handleRemove = (u) => {};
+  const handleRemove = async (u) => {
+    if (selectedChat.groupAdmin._id != user._id && u._id != user._id) {
+      toaster.create({
+        description: "Only group admin can remove other users",
+        type: "warning",
+        duration: 5000,
+        closable: true,
+      });
+      return;
+    }
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.delete("api/chat/remove", {
+        ...config,
+        data: {
+          chatId: selectedChat._id,
+          userId: u._id,
+        },
+      });
+      setLoading(false);
+      setFetchAgain(!fetchAgain);
+      if (u._id === user._id) {
+        setSelectedChat();
+        toaster.create({
+          description: "You have left the group",
+          type: "success",
+          duration: 5000,
+          closable: true,
+        });
+        return;
+      } else {
+        setSelectedChat(data);
+        toaster.create({
+          description: "User removed from group",
+          type: "success",
+          duration: 5000,
+          closable: true,
+        });
+      }
+    } catch (error) {
+      setLoading(false);
+      // console.error("Error removing user from group chat:", error);
+      toaster.create({
+        description: "Error removing user from group",
+        type: "error",
+        duration: 5000,
+        closable: true,
+      });
+      return;
+    }
+  };
   const handleRename = async (u) => {
     if (!chatName) {
       return;
@@ -58,9 +115,88 @@ const UpdateGroupChatModal = createOverlay((props) => {
     }
     setChatName("");
   };
-  const handleSearch = (query) => {};
+  const handleSearch = async (query) => {
+    if (!query) {
+      return;
+    } else {
+      try {
+        setLoading(true);
+        const config = {
+          headers: {
+            authorization: `Bearer ${user.token}`,
+          },
+        };
+        const { data } = await axios.get(
+          `api/user/search?key=${query}`,
+          config
+        );
+        // console.log("Search Results:", data);
+        setLoading(false);
+        setSearchResult(data);
+      } catch (error) {
+        console.error("Error occurred during search:", error);
+        toaster.create({
+          description: "Error occurred during search",
+          type: "error",
+          duration: 5000,
+          closable: true,
+        });
+        setLoading(false);
+      }
+    }
+  };
+  const handleAdd = async (newUser) => {
+    if (selectedChat.users.find((u) => u._id === newUser._id)) {
+      //   console.log("User already in group");
+      toaster.create({
+        description: "User already in group",
+        type: "warning",
+        duration: 5000,
+        closable: true,
+      });
+      return;
+    }
+    if (selectedChat.groupAdmin._id != user._id) {
+      toaster.create({
+        description: "Only group admin can add users",
+        type: "warning",
+        duration: 5000,
+        closable: true,
+      });
+      return;
+    }
+    try {
+      setLoading(true);
+      const config = {
+        headers: {
+          authorization: `Bearer ${user.token}`,
+        },
+      };
+      const { data } = await axios.patch(
+        `api/chat/add`,
+        {
+          chatId: selectedChat._id,
+          userId: newUser._id,
+        },
+        config
+      );
+      setLoading(false);
+      setSelectedChat(data);
+      setFetchAgain(!fetchAgain);
+    } catch (error) {
+      setLoading(false);
+      //   console.error("Error adding user to group chat:", error);
+      toaster.create({
+        description: "Error adding user to group",
+        type: "error",
+        duration: 5000,
+        closable: true,
+      });
+      return;
+    }
+  };
   return (
-    <Dialog.Root {...rest} placement="top">
+    <Dialog.Root {...props} placement="top">
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
@@ -70,9 +206,14 @@ const UpdateGroupChatModal = createOverlay((props) => {
             display="flex"
             flexDirection="column"
             alignItems="center"
-            height="35%"
+            // height="35%"
           >
-            <Heading size="5xl" marginY="3%" fontFamily="Work sans">
+            <Heading
+              size="5xl"
+              marginY="3%"
+              fontFamily="Work sans"
+              textAlign="center"
+            >
               {selectedChat.chatName.toUpperCase()}
             </Heading>
             <Dialog.Body
@@ -88,7 +229,7 @@ const UpdateGroupChatModal = createOverlay((props) => {
                       key={u._id}
                       user={u}
                       handler={() => {
-                        handleRemove(u._id);
+                        handleRemove(u);
                       }}
                     />
                   );
@@ -119,10 +260,26 @@ const UpdateGroupChatModal = createOverlay((props) => {
                   mb="1"
                   placeholder="Add Users to group"
                   onChange={(event) => {
+                    setSearch(event.target.value);
                     handleSearch(event.target.value);
                   }}
                 />
               </Field.Root>
+              {loading ? (
+                <div>Loading...</div>
+              ) : (
+                searchResult?.slice(0, 4).map((newUser) => {
+                  return (
+                    <UserListItem
+                      key={newUser._id}
+                      user={newUser}
+                      handler={() => {
+                        handleAdd(newUser);
+                      }}
+                    />
+                  );
+                })
+              )}
             </Dialog.Body>
             <Dialog.Footer>
               <Dialog.CloseTrigger asChild>
@@ -133,7 +290,7 @@ const UpdateGroupChatModal = createOverlay((props) => {
                 />
               </Dialog.CloseTrigger>
               <Button
-                marginTop="-40%"
+                marginTop="-15%"
                 marginRight="-129%"
                 variant="solid"
                 colorPalette="red"
