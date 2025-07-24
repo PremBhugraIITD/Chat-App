@@ -54,7 +54,7 @@ const SideDrawer = () => {
       setSearchResult(data);
     } catch (error) {
       setLoading(false);
-      console.error(error);
+    //   console.error(error);
       toaster.create({
         description: "Error occurred during search",
         type: "error",

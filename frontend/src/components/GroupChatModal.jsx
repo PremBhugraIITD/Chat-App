@@ -57,7 +57,7 @@ const GroupChatModal = createOverlay((props) => {
       });
       GroupChatModal.close("group-chat");
     } catch (error) {
-      console.error("Error creating group chat:", error);
+    //   console.error("Error creating group chat:", error);
       toaster.create({
         description: "Error creating group chat",
         type: "error",
@@ -86,7 +86,7 @@ const GroupChatModal = createOverlay((props) => {
         setLoading(false);
         setSearchResult(data);
       } catch (error) {
-        console.error("Error occurred during search:", error);
+        // console.error("Error occurred during search:", error);
         toaster.create({
           description: "Error occurred during search",
           type: "error",

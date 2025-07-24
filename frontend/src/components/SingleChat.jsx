@@ -1,13 +1,87 @@
-import { Box, IconButton, Text } from "@chakra-ui/react";
+import { Box, IconButton, Input, Spinner, Text, Field } from "@chakra-ui/react";
 import { ChatState } from "../context/ChatProvider.jsx";
 import { getSender, getSenderFull } from "../config/chatLogic.js";
 import ProfileModal from "./ProfileModal";
 import UpdateGroupChatModal from "./UpdateGroupChatModal.jsx";
 import { FetchState } from "../context/FetchProvider.jsx";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { toaster } from "@/components/ui/toaster";
+import "./SingleChat.css";
+import ScrollableChat from "./ScrollableChat.jsx";
 
 const SingleChat = () => {
   const { fetchAgain, setFetchAgain } = FetchState();
   const { user, selectedChat, setSelectedChat } = ChatState();
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState("");
+  const sendMessage = async (event) => {
+    if (event.key === "Enter" && newMessage) {
+      try {
+        const config = {
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${user.token}`,
+          },
+        };
+        setNewMessage("");
+        const { data } = await axios.post(
+          "api/message",
+          {
+            content: newMessage,
+            chatId: selectedChat._id,
+          },
+          config
+        );
+        setMessages([...messages, data]);
+        // console.log("Message sent:", data);
+      } catch (error) {
+        // console.error("Error sending message:", error);
+        toaster.create({
+          description: "Error sending message",
+          type: "error",
+          duration: 5000,
+          closable: true,
+        });
+      }
+    }
+  };
+  const typingHandler = (event) => {
+    setNewMessage(event.target.value);
+  };
+  const fetchMessages = async () => {
+    if (!selectedChat) {
+      return;
+    } else {
+      try {
+        setLoading(true);
+        const config = {
+          headers: {
+            authorization: `Bearer ${user.token}`,
+          },
+        };
+        const { data } = await axios.get(
+          `api/message/${selectedChat._id}`,
+          config
+        );
+        setMessages(data);
+        setLoading(false);
+      } catch (error) {
+        // console.error("Error fetching messages:", error);
+        setLoading(false);
+        toaster.create({
+          description: "Error fetching messages",
+          type: "error",
+          duration: 5000,
+          closable: true,
+        });
+      }
+    }
+  };
+  useEffect(() => {
+    fetchMessages();
+  }, [selectedChat]);
   return (
     <>
       {selectedChat ? (
@@ -117,7 +191,31 @@ const SingleChat = () => {
             backgroundColor="#e8e8e8"
             borderRadius="lg"
             overflowY="hidden"
-          ></Box>
+          >
+            {loading ? (
+              <Spinner
+                size="xl"
+                width="20"
+                height="20"
+                alignSelf="center"
+                margin="auto"
+              />
+            ) : (
+              <div className="messages">
+                <ScrollableChat messages={messages}/>
+              </div>
+            )}
+            <Field.Root required onKeyDown={sendMessage} mt="3">
+              <Input
+                variant="outline"
+                css={{ "--focus-color": "black" }}
+                backgroundColor="#e0e0e0"
+                placeholder="Enter a message..."
+                onChange={typingHandler}
+                value={newMessage}
+              />
+            </Field.Root>
+          </Box>
         </>
       ) : (
         <Box
@@ -127,7 +225,12 @@ const SingleChat = () => {
           height="100%"
           width="100%"
         >
-          <Text fontSize="5xl" fontFamily="Work sans" color="black" textAlign="center">
+          <Text
+            fontSize="5xl"
+            fontFamily="Work sans"
+            color="black"
+            textAlign="center"
+          >
             Select a chat to start messaging
           </Text>
         </Box>

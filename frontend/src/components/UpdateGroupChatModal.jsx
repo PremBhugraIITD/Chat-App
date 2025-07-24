@@ -104,7 +104,7 @@ const UpdateGroupChatModal = createOverlay((props) => {
       setFetchAgain(!fetchAgain);
       setRenameLoading(false);
     } catch (error) {
-      console.error("Error renaming group chat:", error);
+    //   console.error("Error renaming group chat:", error);
       setRenameLoading(false);
       toaster.create({
         description: "Failed to rename group chat",
@@ -134,7 +134,7 @@ const UpdateGroupChatModal = createOverlay((props) => {
         setLoading(false);
         setSearchResult(data);
       } catch (error) {
-        console.error("Error occurred during search:", error);
+        // console.error("Error occurred during search:", error);
         toaster.create({
           description: "Error occurred during search",
           type: "error",
