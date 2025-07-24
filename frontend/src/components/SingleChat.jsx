@@ -9,6 +9,10 @@ import axios from "axios";
 import { toaster } from "@/components/ui/toaster";
 import "./SingleChat.css";
 import ScrollableChat from "./ScrollableChat.jsx";
+import { io } from "socket.io-client";
+
+const ENDPOINT = "http://localhost:3000";
+let socket, selectedChatCompare;
 
 const SingleChat = () => {
   const { fetchAgain, setFetchAgain } = FetchState();
@@ -16,6 +20,7 @@ const SingleChat = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
       try {
@@ -34,6 +39,7 @@ const SingleChat = () => {
           },
           config
         );
+        socket.emit("new message", data);
         setMessages([...messages, data]);
         // console.log("Message sent:", data);
       } catch (error) {
@@ -67,6 +73,7 @@ const SingleChat = () => {
         );
         setMessages(data);
         setLoading(false);
+        socket.emit("join chat", selectedChat._id);
       } catch (error) {
         // console.error("Error fetching messages:", error);
         setLoading(false);
@@ -80,8 +87,28 @@ const SingleChat = () => {
     }
   };
   useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", user);
+    socket.on("connected", () => {
+      setSocketConnected(true);
+    });
+  }, []);
+  useEffect(() => {
     fetchMessages();
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
+  useEffect(() => {
+    socket.on("message received", (newMessageReceived) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        //notification
+      } else {
+        setMessages([...messages, newMessageReceived]);
+      }
+    });
+  });
   return (
     <>
       {selectedChat ? (
@@ -202,7 +229,7 @@ const SingleChat = () => {
               />
             ) : (
               <div className="messages">
-                <ScrollableChat messages={messages}/>
+                <ScrollableChat messages={messages} />
               </div>
             )}
             <Field.Root required onKeyDown={sendMessage} mt="3">

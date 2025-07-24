@@ -20,11 +20,11 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", userRoutes);
-app.use("/api/chat",chatRoutes);
-app.use("/api/message",messageRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/message", messageRoutes);
 
 app.use((err, req, res, next) => {
-  console.log("Error occured");  
+  console.log("Error occured");
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   res.status(statusCode);
   res.json({
@@ -32,4 +32,43 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, console.log(`Server is running on port ${PORT}`));
+const server = app.listen(
+  PORT,
+  console.log(`Server is running on port ${PORT}`)
+);
+
+import { Server } from "socket.io";
+
+const io = new Server(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io");
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    // console.log(userData._id);
+    socket.emit("connected");
+  });
+  socket.on("join chat", (room) => {
+    socket.join("room");
+    console.log("User joined room:", room);
+  });
+  socket.on("new message", (newMessageReceived) => {
+    let chat = newMessageReceived.chat;
+    if (!chat.users) {
+      return console.log("No users present in chat");
+    }
+    chat.users.forEach((user) => {
+      if (user._id === newMessageReceived.sender._id) {
+        return;
+      } else {
+        socket.in(user._id).emit("message received", newMessageReceived);
+        // console.log("Message sent to user:", user._id);
+      }
+    });
+  });
+});
