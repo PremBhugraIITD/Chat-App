@@ -46,3 +46,19 @@ export const isOtherSenderMargin = (messages, currMessage, index, userId) => {
 export const isSameSender = (messages, currMessage, index) => {
   return index > 0 && messages[index - 1].sender._id === currMessage.sender._id;
 };
+
+export const isOtherSenderBoth = (messages, currMessage, index, userId) => {
+  return (
+    index < messages.length - 1 &&
+    (messages[index + 1].sender._id !== currMessage.sender._id ||
+      messages[index + 1].sender._id === undefined)
+  );
+};
+
+export const isLastMessageBoth = (messages, index, userId) => {
+    // console.log("isLastMessage called");
+  return (
+    index === messages.length - 1 &&
+    messages[messages.length - 1].sender._id
+  );
+};

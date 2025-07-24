@@ -1,17 +1,28 @@
 import {
   isLastMessage,
+  isLastMessageBoth,
   isOtherSender,
+  isOtherSenderBoth,
   isOtherSenderMargin,
   isSameSender,
 } from "../config/chatLogic";
 import { ChatState } from "../context/ChatProvider";
 import { Avatar, Box, Button } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
+import { useRef } from "react";
+import { useEffect } from "react";
 
 const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
   return (
-    <div>
+    <div style={{ overflowY: "auto", height: "100%" }}>
       {messages &&
         messages.map((message, index) => {
           return (
@@ -47,6 +58,14 @@ const ScrollableChat = ({ messages }) => {
                     user._id
                   ),
                   marginTop: isSameSender(messages, message, index) ? 3 : 0,
+                  marginBottom: isOtherSenderBoth(
+                    messages,
+                    message,
+                    index,
+                    user._id
+                  )
+                    ? 10
+                    : 0,
                   fontFamily: "Work sans",
                   fontWeight: "600",
                 }}
@@ -56,6 +75,7 @@ const ScrollableChat = ({ messages }) => {
             </div>
           );
         })}
+      <div ref={bottomRef} />
     </div>
   );
 };
