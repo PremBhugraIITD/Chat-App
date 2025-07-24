@@ -30,7 +30,6 @@ export const isOtherSenderMargin = (messages, currMessage, index, userId) => {
     messages[index + 1].sender._id === currMessage.sender._id &&
     currMessage.sender._id !== userId
   ) {
-    // console.log("Returning 33 for margin");
     return 40;
   } else if (
     (index < messages.length - 1 &&
@@ -38,7 +37,6 @@ export const isOtherSenderMargin = (messages, currMessage, index, userId) => {
       currMessage.sender._id !== userId) ||
     (index == messages.length - 1 && currMessage.sender._id !== userId)
   ) {
-    // console.log("Returning 50 for margin");
     return 0;
   } else {
     return "auto";
