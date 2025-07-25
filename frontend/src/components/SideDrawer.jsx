@@ -19,6 +19,8 @@ import { toaster } from "@/components/ui/toaster";
 import ChatLoading from "./ChatLoading.jsx";
 import UserListItem from "./UserListItem.jsx";
 import axios from "axios";
+import { getSender } from "../config/chatLogic.js";
+import Badge from "@mui/material/Badge";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -26,7 +28,14 @@ const SideDrawer = () => {
   const [loading, setLoading] = useState(false);
   const [loadingChat, setLoadingChat] = useState(false);
   const [open, setOpen] = useState(false);
-  const { user, setSelectedChat, chats, setChats } = ChatState();
+  const {
+    user,
+    setSelectedChat,
+    chats,
+    setChats,
+    notifications,
+    setNotifications,
+  } = ChatState();
   const navigate = useNavigate();
   const logoutHandler = () => {
     localStorage.removeItem("userInfo");
@@ -54,7 +63,7 @@ const SideDrawer = () => {
       setSearchResult(data);
     } catch (error) {
       setLoading(false);
-    //   console.error(error);
+      //   console.error(error);
       toaster.create({
         description: "Error occurred during search",
         type: "error",
@@ -132,18 +141,70 @@ const SideDrawer = () => {
                 color="black"
                 className="hover-navbar"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  className="bi bi-bell-fill"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
-                </svg>
+                <Badge badgeContent={notifications.length} color="success" max={10}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-bell-fill"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901" />
+                  </svg>
+                </Badge>
               </Button>
             </Menu.Trigger>
+            <Menu.Positioner>
+              <Menu.Content backgroundColor="white">
+                {!notifications.length && (
+                  <Menu.Item
+                    value="new-file"
+                    color="black"
+                    className="hover-navbar"
+                  >
+                    No New Messages
+                  </Menu.Item>
+                )}
+                {notifications.map((notif) => {
+                  return notif.chat.isGroupChat ? (
+                    <Menu.Item
+                      value="new-file"
+                      color="black"
+                      className="hover-navbar"
+                      key={notif._id}
+                      onClick={() => {
+                        setSelectedChat(notif.chat);
+                        setNotifications(
+                          notifications.filter((n) => {
+                            return n !== notif;
+                          })
+                        );
+                      }}
+                    >
+                      New Message in {notif.chat.chatName}
+                    </Menu.Item>
+                  ) : (
+                    <Menu.Item
+                      value="new-file"
+                      color="black"
+                      className="hover-navbar"
+                      key={notif._id}
+                      onClick={() => {
+                        setSelectedChat(notif.chat);
+                        setNotifications(
+                          notifications.filter((n) => {
+                            return n !== notif;
+                          })
+                        );
+                      }}
+                    >
+                      New Message from {getSender(user, notif.chat.users)}
+                    </Menu.Item>
+                  );
+                })}
+              </Menu.Content>
+            </Menu.Positioner>
           </Menu.Root>
           <Menu.Root variant="solid">
             <Menu.Trigger asChild>

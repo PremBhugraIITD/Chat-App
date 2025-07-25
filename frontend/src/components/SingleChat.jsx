@@ -18,7 +18,7 @@ let socket, selectedChatCompare;
 
 const SingleChat = () => {
   const { fetchAgain, setFetchAgain } = FetchState();
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const { user, selectedChat, setSelectedChat, notifications, setNotifications } = ChatState();
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
@@ -143,7 +143,10 @@ const SingleChat = () => {
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageReceived.chat._id
       ) {
-        //notification
+        if(!notifications.includes(newMessageReceived)){
+            setNotifications([newMessageReceived, ...notifications]);
+            setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessages([...messages, newMessageReceived]);
       }
@@ -279,7 +282,7 @@ const SingleChat = () => {
                     options={defaultOptions}
                     width="70"
                     height="10"
-                    style={{ marginBottom: 5, marginLeft: 0 }}
+                    style={{ marginBottom: 0, marginLeft: 0 }}
                   />
                 </div>
               ) : (
