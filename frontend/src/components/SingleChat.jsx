@@ -10,6 +10,8 @@ import { toaster } from "@/components/ui/toaster";
 import "./SingleChat.css";
 import ScrollableChat from "./ScrollableChat.jsx";
 import { io } from "socket.io-client";
+import Lottie from "react-lottie";
+import animationData from "../animations/typing.json";
 
 const ENDPOINT = "http://localhost:3000";
 let socket, selectedChatCompare;
@@ -21,8 +23,19 @@ const SingleChat = () => {
   const [loading, setLoading] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
+      socket.emit("stop typing", selectedChat);
       try {
         const config = {
           headers: {
@@ -55,6 +68,25 @@ const SingleChat = () => {
   };
   const typingHandler = (event) => {
     setNewMessage(event.target.value);
+    if (!socketConnected) {
+      return;
+    } else {
+      if (!typing) {
+        setTyping(true);
+        socket.emit("typing", selectedChat);
+        // console.log("User is typing...");
+      }
+      let lastTypingTime = new Date().getTime();
+      setTimeout(() => {
+        let timeNow = new Date().getTime();
+        let timeDiff = timeNow - lastTypingTime;
+        if (timeDiff >= 3000 && typing) {
+          socket.emit("stop typing", selectedChat);
+          // console.log("User stopped typing");
+          setTyping(false);
+        }
+      }, 3000);
+    }
   };
   const fetchMessages = async () => {
     if (!selectedChat) {
@@ -91,6 +123,14 @@ const SingleChat = () => {
     socket.emit("setup", user);
     socket.on("connected", () => {
       setSocketConnected(true);
+    });
+    socket.on("typing", () => {
+      // console.log("User is typing...");
+      setIsTyping(true);
+    });
+    socket.on("stop typing", () => {
+      // console.log("User stopped typing");
+      setIsTyping(false);
     });
   }, []);
   useEffect(() => {
@@ -233,6 +273,18 @@ const SingleChat = () => {
               </div>
             )}
             <Field.Root required onKeyDown={sendMessage} mt="3">
+              {isTyping ? (
+                <div>
+                  <Lottie
+                    options={defaultOptions}
+                    width="70"
+                    height="10"
+                    style={{ marginBottom: 5, marginLeft: 0 }}
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
               <Input
                 variant="outline"
                 css={{ "--focus-color": "black" }}
