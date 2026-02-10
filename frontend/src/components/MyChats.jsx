@@ -4,7 +4,7 @@ import GroupChatModal from "./GroupChatModal.jsx";
 import { getSender } from "../config/chatLogic.js";
 import { toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../config/api";
 import { Box, Button, Stack, Text } from "@chakra-ui/react";
 import { FetchState } from "../context/FetchProvider.jsx";
 
@@ -19,7 +19,7 @@ const MyChats = () => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(`api/chat`, config);
+      const { data } = await api.get(`/chat`, config);
       setChats(data);
     } catch {
       toaster.create({

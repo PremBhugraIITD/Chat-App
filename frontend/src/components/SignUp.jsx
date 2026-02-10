@@ -8,7 +8,7 @@ import { VStack, Field, Input, Button } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
-import axios from "axios";
+import api from "../config/api";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
@@ -106,7 +106,7 @@ const SignUp = () => {
       const body = pic
         ? { name, email, password, pic }
         : { name, email, password };
-      const { data } = await axios.post("/api/user/signup", body, config);
+      const { data } = await api.post("/user/signup", body, config);
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
       navigate("/chats");

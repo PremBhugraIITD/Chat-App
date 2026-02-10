@@ -5,7 +5,7 @@ import ProfileModal from "./ProfileModal";
 import UpdateGroupChatModal from "./UpdateGroupChatModal.jsx";
 import { FetchState } from "../context/FetchProvider.jsx";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../config/api";
 import { toaster } from "@/components/ui/toaster";
 import "./SingleChat.css";
 import ScrollableChat from "./ScrollableChat.jsx";
@@ -13,7 +13,7 @@ import { io } from "socket.io-client";
 import Lottie from "react-lottie";
 import animationData from "../animations/typing.json";
 
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
 let socket, selectedChatCompare;
 
 const SingleChat = () => {
@@ -44,8 +44,8 @@ const SingleChat = () => {
           },
         };
         setNewMessage("");
-        const { data } = await axios.post(
-          "api/message",
+        const { data } = await api.post(
+          "/message",
           {
             content: newMessage,
             chatId: selectedChat._id,
@@ -99,8 +99,8 @@ const SingleChat = () => {
             authorization: `Bearer ${user.token}`,
           },
         };
-        const { data } = await axios.get(
-          `api/message/${selectedChat._id}`,
+        const { data } = await api.get(
+          `/message/${selectedChat._id}`,
           config
         );
         setMessages(data);

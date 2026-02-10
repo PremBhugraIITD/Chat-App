@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { toaster } from "@/components/ui/toaster";
-import axios from "axios";
+import api from "../config/api";
 import UserListItem from "./UserListItem";
 import UserBadgeItem from "./UserBadgeItem";
 import { ChatState } from "../context/ChatProvider";
@@ -40,8 +40,8 @@ const GroupChatModal = createOverlay((props) => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(
-        "api/chat/group",
+      const { data } = await api.post(
+        "/chat/group",
         {
           name: chatName,
           users: JSON.stringify(selectedUsers.map((u) => u._id)),
@@ -78,8 +78,8 @@ const GroupChatModal = createOverlay((props) => {
             authorization: `Bearer ${user.token}`,
           },
         };
-        const { data } = await axios.get(
-          `api/user/search?key=${query}`,
+        const { data } = await api.get(
+          `/user/search?key=${query}`,
           config
         );
         // console.log("Search Results:", data);

@@ -1,7 +1,7 @@
 import { VStack, Field, Input, Button } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useState } from "react";
-import axios from "axios";
+import api from "../config/api";
 import { useNavigate } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
 
@@ -30,8 +30,8 @@ const SignIn = () => {
           "Content-Type": "application/json",
         },
       };
-      const { data } = await axios.post(
-        "/api/user/signin",
+      const { data } = await api.post(
+        "/user/signin",
         {
           email,
           password,

@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import UserBadgeItem from "./UserBadgeItem";
-import axios from "axios";
+import api from "../config/api";
 import { FetchState } from "../context/FetchProvider";
 import UserListItem from "./UserListItem";
 
@@ -42,7 +42,7 @@ const UpdateGroupChatModal = createOverlay((props) => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.delete("api/chat/remove", {
+      const { data } = await api.delete("/chat/remove", {
         ...config,
         data: {
           chatId: selectedChat._id,
@@ -92,8 +92,8 @@ const UpdateGroupChatModal = createOverlay((props) => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.put(
-        "api/chat/rename",
+      const { data } = await api.put(
+        "/chat/rename",
         {
           chatId: selectedChat._id,
           chatName: chatName,
@@ -126,8 +126,8 @@ const UpdateGroupChatModal = createOverlay((props) => {
             authorization: `Bearer ${user.token}`,
           },
         };
-        const { data } = await axios.get(
-          `api/user/search?key=${query}`,
+        const { data } = await api.get(
+          `/user/search?key=${query}`,
           config
         );
         // console.log("Search Results:", data);
@@ -172,8 +172,8 @@ const UpdateGroupChatModal = createOverlay((props) => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.patch(
-        `api/chat/add`,
+      const { data } = await api.patch(
+        `/chat/add`,
         {
           chatId: selectedChat._id,
           userId: newUser._id,

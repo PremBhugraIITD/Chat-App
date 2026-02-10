@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { toaster } from "@/components/ui/toaster";
 import ChatLoading from "./ChatLoading.jsx";
 import UserListItem from "./UserListItem.jsx";
-import axios from "axios";
+import api from "../config/api";
 import { getSender } from "../config/chatLogic.js";
 import Badge from "@mui/material/Badge";
 
@@ -58,7 +58,7 @@ const SideDrawer = () => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.get(`api/user/search?key=${search}`, config);
+      const { data } = await api.get(`/user/search?key=${search}`, config);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -81,7 +81,7 @@ const SideDrawer = () => {
           authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post(`api/chat`, { userId }, config);
+      const { data } = await api.post(`/chat`, { userId }, config);
       if (!chats.find((chat) => chat._id === data._id)) {
         setChats([data, ...chats]);
       }
