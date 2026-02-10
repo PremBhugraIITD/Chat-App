@@ -15,7 +15,7 @@ connectDB();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL || "https://chatter-frontend-one.vercel.app"
+  "https://chatter-frontend-one.vercel.app"
 ];
 
 app.use(cors({
