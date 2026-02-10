@@ -194,6 +194,64 @@ Chat-App/
 
 3. **Open your browser** and navigate to `http://localhost:5173`
 
+## 🌐 Deployment
+
+The application is successfully deployed and accessible online:
+
+- **Frontend**: [https://chatter-frontend-one.vercel.app](https://chatter-frontend-one.vercel.app)
+- **Backend**: [https://chatter-backend-5je8.onrender.com](https://chatter-backend-5je8.onrender.com)
+- **Database**: MongoDB Atlas (Cloud)
+
+### Deployment Platforms
+
+#### Frontend - Vercel
+1. **Platform**: [Vercel](https://vercel.com)
+2. **Root Directory**: `frontend`
+3. **Build Command**: `npm run build`
+4. **Output Directory**: `dist`
+5. **Environment Variables**:
+   - `VITE_API_URL`: `https://chatter-backend-5je8.onrender.com`
+
+#### Backend - Render
+1. **Platform**: [Render](https://render.com)
+2. **Build Command**: `npm install`
+3. **Start Command**: `npm start`
+4. **Environment Variables**:
+   - `PORT`: Auto-assigned by Render
+   - `MONGO_URI`: MongoDB Atlas connection string
+   - `JWT_SECRET`: Your JWT secret key
+   - `FRONTEND_URL`: `https://chatter-frontend-one.vercel.app`
+
+#### Database - MongoDB Atlas
+1. **Platform**: [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. **Cluster**: Free tier (512MB)
+3. **Network Access**: Allow connections from anywhere (0.0.0.0/0)
+4. **Database User**: Created with read/write permissions
+
+### Deployment Configuration
+
+#### CORS Setup
+The backend is configured to accept requests from both local development and production URLs:
+- `http://localhost:5173` (local development)
+- `https://chatter-frontend-one.vercel.app` (production)
+
+#### Socket.IO Configuration
+Socket.IO endpoints are automatically configured based on the environment:
+- **Development**: `http://localhost:3000`
+- **Production**: `https://chatter-backend-5je8.onrender.com`
+
+### Environment Variables Setup
+
+For **local development**, uncomment in `frontend/.env`:
+```env
+VITE_API_URL=http://localhost:3000
+```
+
+For **production**, set in Vercel dashboard:
+```env
+VITE_API_URL=https://chatter-backend-5je8.onrender.com
+```
+
 ## 📡 API Endpoints
 
 ### User Routes (`/api/user`)
