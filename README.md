@@ -220,7 +220,6 @@ The application is successfully deployed and accessible online:
    - `PORT`: Auto-assigned by Render
    - `MONGO_URI`: MongoDB Atlas connection string
    - `JWT_SECRET`: Your JWT secret key
-   - `FRONTEND_URL`: `https://chatter-frontend-one.vercel.app`
 
 #### Database - MongoDB Atlas
 1. **Platform**: [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
